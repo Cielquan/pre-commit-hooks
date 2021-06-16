@@ -1,0 +1,169 @@
+[build-system]
+    requires = ["poetry>=1.0"]
+    build-backend = "poetry.core.masonry.api"
+
+
+# -- POETRY CONFIG ---------------------------------------------------------------------
+[tool.poetry]
+    name = "pre-commit-hooks"
+    version = "1.0.0"
+    description = "My pre-commit hooks."
+    authors = ["Christian Riedel <cielquan@protonmail.com>"]
+    license = "MIT"
+    keywords = ["pre-commit", "hook", "git"]
+    classifiers = [
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Version Control :: Git",
+    ]
+    repository = "https://github.com/Cielquan/pre-commit-hooks"
+    readme = "README.rst"
+    packages = [{ include = "pre_commit_hooks", from = "src" }]
+
+    [tool.poetry.dependencies]
+        python = "^3.6.2"
+
+    [tool.poetry.scripts]
+        remove_jsonc_comments = "pre_commit_hooks.remove_jsonc_comments:main"
+
+
+#: -- FLAKEHELL CONFIG -----------------------------------------------------------------
+[tool.flakehell]
+    format="colored"
+    max_line_length = 88
+    max_complexity = 20
+    max_cognitive_complexity = 10
+    min_python_version = "3.6.2"
+    pytest_fixture_no_parentheses = true
+
+    [tool.flakehell.plugins]
+        pylint = [
+            "+*",
+            #: deactivate
+            "-C0301",  # line length - E501[pycodestyle]
+            "-C040?",  # spelling
+            "-W0511",  # fixme
+            #: bugs
+            "-W1203",  # Use % format in logger funcs | https://github.com/PyCQA/pylint/issues/2354
+        ]
+        pyflakes = ["+*"]
+        mccabe = ["+*"]
+        pycodestyle = [
+            "+*",
+            #: deactivate for black
+            "-W503",  # line break before binary operator
+            "-E203",  # whitespace before ':'
+            #: deactivate
+            "-E731",  #: forbids lambda
+        ]
+        pep8-naming = ["+*"]
+        "flake8-*" = ["+*"]
+        flake8-aaa = ["-*"]
+        flake8-annotations = [
+            "+*",
+            #: deactivate
+            "-ANN101",  # Missing type annotation for self in method
+            "-ANN102",  # Missing type annotation for cls in classmethod
+        ]
+        flake8-rst-docstrings = [
+            "+*",
+            #: deactivate
+            "-RST303",  # Unknown directive type
+            "-RST304",  # Unknown interpreted text role
+        ]
+        flake8-use-fstring = [
+            "+*",
+            #: deactivate
+            "-FS003",  # f-string missing prefix | can be % string
+        ]
+
+    [tool.flakehell.exceptions]
+        [tool.flakehell.exceptions."tests/"]
+            flake8-aaa = ["+*"]
+            flake8-bandit = [
+                "-S101",  # assert used
+            ]
+            pylint = [
+                "-W0212",  # accesss protected member
+            ]
+
+        [tool.flakehell.exceptions."noxfile.py"]
+            flake8-cognitive-complexity = [
+                "-CCR001",  # Cognitive complexity is too high
+            ]
+
+        [tool.flakehell.exceptions."docs/source/conf.py"]
+            pylint = [
+                "-C0103",  # %s name "%s" doesn't conform to %s
+            ]
+
+
+#: -- PYLINT CONFIG --------------------------------------------------------------------
+[tool.pylint]
+    [tool.pylint.master]
+        additional-builtins = "tags"
+
+    [tool.pylint.spelling]
+        spelling-dict = "en_US"
+        # spelling-private-dict-file = "docs/source/spelling_dict.txt"
+
+
+#: -- PYTEST CONFIG --------------------------------------------------------------------
+[tool.pytest.ini_options]
+    addopts = "-ra --showlocals"
+    mock_use_standalone_module = true
+    junit_family = "xunit2"
+
+
+#: -- COVERAGE CONFIG ------------------------------------------------------------------
+[tool.coverage]
+    [tool.coverage.run]
+        plugins = ["coverage_conditional_plugin"]
+        branch = true
+        parallel = true
+        context = "static-context"
+        omit = [
+            "tests/*",
+            "docs/*",
+        ]
+
+    [tool.coverage.paths]
+        tox_combine = [
+            "src/pre_commit_hooks",
+            "*/.tox/*/lib/python*/site-packages/pre_commit_hooks",
+            "*/.tox/pypy*/site-packages/pre_commit_hooks",
+            "*/.tox\\*\\Lib\\site-packages\\pre_commit_hooks",
+        ]
+        local_combine = [
+            "src/pre_commit_hooks",
+            "*/.venv/lib/python*/site-packages/pre_commit_hooks",
+            "*/.venv\\*\\Lib\\site-packages\\pre_commit_hooks",
+            "*/src/pre_commit_hooks",
+            "*\\src\\pre_commit_hooks",
+        ]
+
+    [tool.coverage.report]
+        show_missing = true
+        exclude_lines = [
+            "# pragma: no cover",
+            "if __name__ == ['\"]__main__['\"]:",
+            "def __str__",
+            "def __repr__",
+            "if self.debug:",
+            "if settings.DEBUG",
+            "if 0:",
+            "if False:",
+            "if TYPE_CHECKING:",
+            "if MYPY:",
+        ]
+
+    [tool.coverage.html]
+        show_contexts = true
+
+    [tool.coverage.coverage_conditional_plugin]
+        [tool.coverage.coverage_conditional_plugin.rules]
+            # use with: # pragma: <KEY>
+            py-ue-36 = "sys_version_info[0:2] != (3, 6)"
+            py-ue-37 = "sys_version_info[0:2] != (3, 7)"
+            py-lt-38 = "sys_version_info < (3, 8)"
+            py-gte-38 = "sys_version_info >= (3, 8)"
