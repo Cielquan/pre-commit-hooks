@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Remove `//` comments from *.jsonc file and save it as *.json file."""
+import json
 import re
 import sys
 
@@ -70,8 +71,11 @@ def parse_jsonc(files: List[str]) -> int:
             print(f"Created file '{json_file_path}'.")
             json_file_path.write_text(json_content_wo_comments)
             exit_code = 1
-
-        elif json_file_path.read_text().split("\n") != json_content_wo_comments:
+        elif (
+            json.loads(json_content_wo_comments)
+            != json.loads(json_file_path.read_text())
+            or json_file_path.read_text().split("\n")[-1] != ""
+        ):
             print(f"Updated file '{json_file_path}'.")
             json_file_path.write_text(json_content_wo_comments)
             exit_code = 1
