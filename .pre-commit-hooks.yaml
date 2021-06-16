@@ -1,0 +1,7 @@
+- id: remove-comments-from-jsonc
+  name: Remove comments from jsonc
+  description: Remove // comments from jsonc file and save it as json file.
+  language: python
+  entry: remove_jsonc_comments
+  require_serial: true
+  files: '.*\.jsonc'
