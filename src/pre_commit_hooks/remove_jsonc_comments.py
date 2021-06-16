@@ -55,18 +55,25 @@ def parse_jsonc(files: List[str]) -> int:
 
         jsonc_content = file_path.read_text().split("\n")
 
-        json_content_wo_comments = [
-            remove_comment(l) for l in jsonc_content if remove_comment(l).strip() != ""
-        ] + [""]
+        json_content_wo_comments = (
+            "\n".join(
+                [
+                    remove_comment(l)
+                    for l in jsonc_content
+                    if remove_comment(l).strip() != ""
+                ]
+            )
+            + "\n"
+        )
 
         if not json_file_path.is_file():
             print(f"Created file '{json_file_path}'.")
-            json_file_path.write_text("\n".join(json_content_wo_comments))
+            json_file_path.write_text(json_content_wo_comments)
             exit_code = 1
 
         elif json_file_path.read_text().split("\n") != json_content_wo_comments:
             print(f"Updated file '{json_file_path}'.")
-            json_file_path.write_text("\n".join(json_content_wo_comments))
+            json_file_path.write_text(json_content_wo_comments)
             exit_code = 1
 
     return exit_code
