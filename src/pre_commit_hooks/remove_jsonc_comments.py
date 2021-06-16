@@ -57,7 +57,7 @@ def parse_jsonc(files: List[str]) -> int:
 
         json_content_wo_comments = [
             remove_comment(l) for l in jsonc_content if remove_comment(l).strip() != ""
-        ]
+        ] + [""]
 
         if not json_file_path.is_file():
             print(f"Created file '{json_file_path}'.")
