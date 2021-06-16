@@ -31,7 +31,7 @@ JSON_PATTERN = re.compile(
 remove_comment = lambda json_line: JSON_PATTERN.sub(repl=r"\1", string=json_line)
 
 
-def main(files: List[str]) -> int:
+def parse_jsonc(files: List[str]) -> int:
     """Remove comments from given *.jsonc files.
 
     :param files: List of files to remove comments from.
@@ -72,5 +72,10 @@ def main(files: List[str]) -> int:
     return exit_code
 
 
+def main() -> int:
+    """Main."""
+    return parse_jsonc(sys.argv[1:])
+
+
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())
