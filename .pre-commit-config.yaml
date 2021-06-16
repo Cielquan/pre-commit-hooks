@@ -1,0 +1,226 @@
+---
+minimum_pre_commit_version: "1.15"
+default_stages: [commit]
+
+ci:
+  skip: [mypy, flakehell, pylint]
+
+repos:
+  # ----------------------------------------------
+  # Meta hooks
+  # ----------------------------------------------
+
+  - repo: meta
+    hooks:
+      - id: identity
+        stages: [manual]
+      - id: check-hooks-apply
+        stages: [manual]
+      - id: check-useless-excludes
+        stages: [manual]
+
+  # ####################################################################################
+  #
+  #       FORMATTING
+  #
+  # ####################################################################################
+
+  # ----------------------------------------------
+  # General (code unspecific)
+  # ----------------------------------------------
+
+  # code unspecific out-of-the-box hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 38b88246ccc552bffaaf54259d064beeee434539 # frozen: v4.0.1
+    hooks:
+      - id: end-of-file-fixer
+        stages: [commit]
+      - id: trailing-whitespace
+        stages: [commit]
+
+  # ----------------------------------------------
+  # Python
+  # ----------------------------------------------
+
+  # pyupgrade - upgrade old python syntax to new
+  - repo: https://github.com/asottile/pyupgrade
+    rev: e1485c79860827b7880f8c5a40fc8ef02456fcc6 # frozen: v2.19.1
+    hooks:
+      - id: pyupgrade
+        args: ["--py36-plus"]
+
+  # isort - sort imports
+  - repo: https://github.com/PyCQA/isort
+    rev: a6222a8a125ec719724e628a5d3d0d5c60923281 # frozen: 5.8.0
+    hooks:
+      # Inline skip: `# isort: skip`
+      - id: isort
+
+  # black - python formatter
+  - repo: https://github.com/psf/black
+    rev: cf75673e1a2c993025a2113ce194d5c65f311c85 # frozen: 21.5b2
+    hooks:
+      # Inline skip: mark block with `# fmt: off` and `# fmt: on` (same indent)
+      - id: black
+        args: ["--safe"]
+
+  # poetry - python dependency management
+  # TODO:#i# https://github.com/python-poetry/poetry/pull/2511
+  - repo: https://github.com/Cielquan/mirrors-poetry
+    rev: 87bf4eb48cd53dc409165358a84b1687b03efc9c # frozen: 1.2.0a1
+    hooks:
+      - id: poetry-lock
+
+  # blacken-docs - black for python code in docs (rst/md/tex)
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 11c213590abfc28ab52587efc9c81a7076dd17c9 # frozen: v1.10.0
+    hooks:
+      - id: blacken-docs
+        additional_dependencies: [black==20.8b1]
+
+  # ----------------------------------------------
+  # JS / TS / HTML / CSS / MD / JSON / YAML
+  # ----------------------------------------------
+
+  # prettier - JS formater
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    # https://github.com/prettier/prettier
+    # Config file: .prettierrc (JSON, YAML)
+    # Ignore file: .prettierignore (file ignore pattern)
+    rev: a99a3fbe79a9d346cabd02a5e167ad0edafe616b # frozen: v2.3.0
+    hooks:
+      - id: prettier
+
+  # ####################################################################################
+  #
+  #       LINTING
+  #
+  # ####################################################################################
+
+  # ----------------------------------------------
+  # General (code unspecific)
+  # ----------------------------------------------
+
+  - repo: local
+    hooks:
+      # Find TODO:|FIXME:|BUG: comments in all files
+      # Inline skip: `#i#` directly after the colon after the tag-word
+      - id: find-todos
+        name: "Find TODO:|FIXME:|BUG: comments"
+        description: "Check for TODO:|FIXME:|BUG: comments in all files"
+        language: pygrep
+        entry: '(^|//!?|#|<!--|;|/\*(\*|!)?|\.\.)\s*(TODO:|FIXME:|BUG:)(?!#i#)'
+        exclude: TODO
+
+  # code unspecific out-of-the-box hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 38b88246ccc552bffaaf54259d064beeee434539 # frozen: v4.0.1
+    hooks:
+      - id: check-case-conflict
+      - id: check-shebang-scripts-are-executable
+        exclude: '^.*\.rs$'
+      - id: detect-private-key
+
+  # ----------------------------------------------
+  # Python
+  # ----------------------------------------------
+
+  # python specific out-of-the-box hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 38b88246ccc552bffaaf54259d064beeee434539 # frozen: v4.0.1
+    hooks:
+      - id: name-tests-test
+        args: ["--django"]
+
+  # several python code regex hooks
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: 58ace0d0dc6b2439b737a5ea353f836f6a2bad13 # frozen: v1.8.0
+    hooks:
+      - id: python-no-log-warn
+      - id: python-no-eval
+
+  # # Lint hooks managed via tox `pre-commit` env b/c they need the pkg installed
+  # - repo: local
+  #   hooks:
+  #     # mypy - python type checker
+  #     # Skip file: `# type: ignore` at top
+  #     # Inline skip: `# type: ignore` or `# type: ignore[CODE, ...]`
+  #     - id: mypy
+  #       name: mypy
+  #       description: run mypy over the installed version if available
+  #       entry: env_exe_runner tox,.venv pre_commit mypy
+  #       args: ["--config-file=tox.ini"]
+  #       language: system
+  #       types: [python]
+  #       require_serial: true
+  #     # flake8 - python linter
+  #     # File skip: `# flake8: noqa`
+  #     # Inline skip: `# noqa` or `# noqa: CODE,...`
+  #     - id: flakehell
+  #       name: flakehell
+  #       description: run flakehell over the installed version if available
+  #       entry: env_exe_runner tox,.venv pre_commit flakehell
+  #       args: ["lint", "--safe"]
+  #       language: system
+  #       types: [python]
+  #       require_serial: true
+
+  # pylint - python linter
+  - repo: https://github.com/PyCQA/pylint/
+    rev: 735c958d3b36fb5d343b7bcb81b1055a430cb042 # frozen: v2.8.3
+    hooks:
+      # File skip: `# pylint: skip-file`
+      # Inline change: `# pylint: disable|enable=CODE|NAME`
+      - id: pylint
+        name: spell-check (pylint+pyenchant)
+        description: >
+          spell-check in docstrings/comments in py-source via pyenchant and pylint
+        args: ["--disable=all", "--enable=spelling"]
+        additional_dependencies: [pyenchant]
+        exclude: "^(?!src).*"
+
+  # poetry - python dependency management
+  # TODO:#i# https://github.com/python-poetry/poetry/pull/2511
+  - repo: https://github.com/Cielquan/mirrors-poetry
+    rev: 87bf4eb48cd53dc409165358a84b1687b03efc9c # frozen: 1.2.0a1
+    hooks:
+      - id: poetry-check
+
+  # # safety - python dependency vulnerability checker
+  # - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+  #   rev: 7f832f094985c310f1fbf2c4922e22d04e5a9b39  # frozen: v1.2.1
+  #   hooks:
+  # # poetry export is missing extras (optional deps)
+  #     - id: python-safety-dependencies-check
+  #       args: ["--full-report"]
+
+  # ----------------------------------------------
+  # JSON / TOML / YAML
+  # ----------------------------------------------
+
+  # JSON specific out-of-the-box hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 38b88246ccc552bffaaf54259d064beeee434539 # frozen: v4.0.1
+    hooks:
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+
+  # yamllint - yaml linter
+  - repo: https://github.com/adrienverge/yamllint
+    rev: 85ccd625a382423edd988fcb796c4dd5897886fb # frozen: v1.26.1
+    hooks:
+      # Config file: .yamllint (yaml) [--config-file]
+      # Inline skip: `# yamllint disable-line[ rule:<RULE>]`
+      # Block skip: `# yamllint disable[ rule:<RULE>]`
+      # Block skip end: `# yamllint enable`
+      - id: yamllint
+
+  # ----------------------------------------------
+  # Validate .pre-commit-hooks.yaml file
+  # ----------------------------------------------
+
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: 229a4e03e3ed531961ca850df6462f19c2a9376d # frozen: v2.13.0
+    hooks:
+      - id: validate_manifest
