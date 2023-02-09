@@ -5,3 +5,19 @@
   entry: remove_jsonc_comments
   require_serial: true
   files: '.*\.jsonc'
+- id: ruler
+  name: Add ruler comment
+  description: Add ruler comment to commit message template
+  # yamllint disable rule:line-length
+  entry: |
+    python -c '
+    import sys;
+    import pathlib;
+    pathlib.Path(sys.argv[1]).write_text(
+      "\n\n#                20↑                 40↑                 60↑                 80↑                100↑                120↑"
+      + pathlib.Path(sys.argv[1]).read_text("utf8"),
+      "utf8"
+    )'
+  # yamllint enable
+  stages: [prepare-commit-msg]
+  language: python
