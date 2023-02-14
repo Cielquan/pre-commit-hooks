@@ -24,6 +24,7 @@
         python = "^3.6.2"
 
     [tool.poetry.scripts]
+        add_commit_msg_ruler_comment = "pre_commit_hooks.add_commit_msg_ruler_comment:main"
         remove_jsonc_comments = "pre_commit_hooks.remove_jsonc_comments:main"
 
 
