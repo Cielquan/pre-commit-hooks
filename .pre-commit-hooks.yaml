@@ -5,9 +5,3 @@
   entry: remove_jsonc_comments
   require_serial: true
   files: '.*\.jsonc'
-- id: ruler
-  name: Add ruler comment
-  description: Add ruler comment to commit message template
-  language: python
-  entry: add_commit_msg_ruler_comment
-  stages: [prepare-commit-msg]
