@@ -1,32 +1,34 @@
 [build-system]
-    requires = ["poetry>=1.0"]
-    build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
 
+[project]
+name = "pre-commit-hooks"
+requires-python = ">=3.8"
+authors = [
+  { name = "Christian Riedel", email = "cielquan@protonmail.com" },
+]
+maintainers = [
+  { name = "Christian Riedel", email = "cielquan@protonmail.com" },
+]
+description = "My pre-commit hooks."
+readme = "README.rst"
+license = { text = "MIT" }
+classifiers = []
+keywords = []
+dynamic = ["version"]
 
-# -- POETRY CONFIG ---------------------------------------------------------------------
-[tool.poetry]
-    name = "pre-commit-hooks"
-    version = "1.0.0"
-    description = "My pre-commit hooks."
-    authors = ["Christian Riedel <cielquan@protonmail.com>"]
-    license = "MIT"
-    keywords = ["pre-commit", "hook", "git"]
-    classifiers = [
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Topic :: Software Development :: Version Control :: Git",
-    ]
-    repository = "https://github.com/Cielquan/pre-commit-hooks"
-    readme = "README.rst"
-    packages = [{ include = "pre_commit_hooks", from = "src" }]
+dependencies = []
 
-    [tool.poetry.dependencies]
-        python = "^3.6.2"
+[project.scripts]
+add_commit_msg_ruler_comment = "pre_commit_hooks.add_commit_msg_ruler_comment:main"
+remove_jsonc_comments = "pre_commit_hooks.remove_jsonc_comments:main"
 
-    [tool.poetry.scripts]
-        add_commit_msg_ruler_comment = "pre_commit_hooks.add_commit_msg_ruler_comment:main"
-        remove_jsonc_comments = "pre_commit_hooks.remove_jsonc_comments:main"
+[project.urls]
+Repository = "https://github.com/Cielquan/pre-commit-hooks"
 
+[tool.setuptools_scm]
+write_to = "src/pre_commit_hooks/__version__.py"
 
 #: -- FLAKEHELL CONFIG -----------------------------------------------------------------
 [tool.flakehell]
